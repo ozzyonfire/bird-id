@@ -5,7 +5,7 @@
   "homepage": "https://ozzyonfire.github.io/bird-id",
   "scripts": {
     "predeploy": "next build",
-    "deploy": "gh-pages -d out",
+    "deploy": "gh-pages -d out -t true",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
