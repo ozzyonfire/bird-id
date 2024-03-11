@@ -8,8 +8,9 @@ import { ThemeProvider } from "@/components/theme-provider";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Bucket List",
-  description: "Infinite canvas drag and drop linked lists",
+  title: "Easy Bird ID",
+  description:
+    "Machine learning powered bird identification - directly in your browser.",
 };
 
 export default function RootLayout({
