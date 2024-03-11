@@ -97,7 +97,7 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-12">
+    <main className="flex min-h-screen flex-col items-center justify-center">
       <h1 className="text-5xl font-bold mb-2 text-center">Bird ID</h1>
       {!previewSrc && (
         <div className="flex flex-col items-center gap-2 w-full max-w-sm">
@@ -144,7 +144,7 @@ export default function Home() {
             <div className="flex flex-col items-center gap-2">
               <p className="text-xl font-medium">Drop an image</p>
               <p className="font-medium">or</p>
-              <Label className="p-2 border border-gray-400 rounded">
+              <Label className="p-2 border border-gray-400 rounded relative">
                 Choose a file
                 <Input
                   multiple

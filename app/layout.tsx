@@ -20,12 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={cn(
-          "antialiased font-sans bg-background min-h-screen",
-          inter.variable
-        )}
-      >
+      <body className={cn("antialiased font-sans", inter.variable)}>
         <ThemeProvider attribute="class" defaultTheme="system">
           <NavMenu />
           {children}
