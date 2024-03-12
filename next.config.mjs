@@ -9,7 +9,7 @@ const nextConfig = {
     };
     return config;
   },
-  basePath: process.env.NODE_ENV === "development" ? undefined : "/bird-id",
+  // basePath: process.env.NODE_ENV === "development" ? undefined : "/bird-id",
 };
 
 export default nextConfig;

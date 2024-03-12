@@ -14,13 +14,10 @@ export const metadata: Metadata = {
   appleWebApp: {
     title: "BirdBot",
     capable: true,
-    startupImage: `${
-      process.env.NODE_ENV === "production" ? "/bird-id" : ""
-    }/favicon/icon-512x512.png`,
+    startupImage: `/favicon/icon-512x512.png`,
+    statusBarStyle: "black-translucent",
   },
-  manifest: `${
-    process.env.NODE_ENV === "production" ? "/bird-id" : ""
-  }/manifest.json`,
+  manifest: "/manifest.json",
 };
 
 export function generateViewport(): Viewport {
