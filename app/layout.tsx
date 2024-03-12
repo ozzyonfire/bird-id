@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     title: "BirdBot",
     capable: true,
     startupImage: `/favicon/icon-512x512.png`,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
   },
   manifest: "/manifest.json",
 };
