@@ -19,6 +19,17 @@ export function ModeToggle() {
   useEffect(() => {
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
+      if (theme === "system") {
+        if (
+          window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches
+        ) {
+          metaThemeColor.setAttribute("content", "hsl(222.2, 84%, 4.9%)");
+        } else {
+          metaThemeColor.setAttribute("content", "hsl(0, 0%, 100%)");
+        }
+        return;
+      }
       metaThemeColor.setAttribute(
         "content",
         theme === "dark" ? "hsl(222.2, 84%, 4.9%)" : "hsl(0, 0%, 100%)"

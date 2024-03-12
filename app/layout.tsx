@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Bird Bot",
+  title: "BirdBot",
   description:
     "Machine learning powered bird identification - directly in your browser.",
   appleWebApp: {
@@ -16,7 +16,9 @@ export const metadata: Metadata = {
     capable: true,
     startupImage: "/favicon/icon-512x512.png",
   },
-  manifest: "/manifest.json",
+  manifest: `${
+    process.env.NODE_ENV === "production" ? "/bird-id" : ""
+  }/manifest.json`,
 };
 
 export function generateViewport(): Viewport {
