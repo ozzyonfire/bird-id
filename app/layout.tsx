@@ -14,7 +14,9 @@ export const metadata: Metadata = {
   appleWebApp: {
     title: "BirdBot",
     capable: true,
-    startupImage: "/favicon/icon-512x512.png",
+    startupImage: `${
+      process.env.NODE_ENV === "production" ? "/bird-id" : ""
+    }/favicon/icon-512x512.png`,
   },
   manifest: `${
     process.env.NODE_ENV === "production" ? "/bird-id" : ""
