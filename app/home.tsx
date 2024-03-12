@@ -24,17 +24,17 @@ export default function Home() {
   const [isDragging, setIsDragging] = useState(false);
   const [previewSrc, setPreviewSrc] = useState<string>();
   const [error, setError] = useState<string>();
-  const [video, setVideo] = useState<HTMLVideoElement | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [progress, setProgress] = useState<number>();
 
   // Create a reference to the worker object.
   const worker = useRef<Worker | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   // We use the `useEffect` hook to set up the worker as soon as the `App` component is mounted.
   useEffect(() => {
     if (!worker.current) {
       // Create the worker if it does not yet exist.
-      console.log("Creating worker...");
       worker.current = new Worker(
         /* webpackChunkName: "pipeline-worker" */ new URL(
           "./matt-worker.ts",
@@ -48,8 +48,10 @@ export default function Home() {
 
     // Create a callback function for messages from the worker thread.
     const onMessageReceived = (e: { data: WorkerMessage }) => {
+      console.log(e.data);
       switch (e.data.status) {
         case "initiate":
+          console.log(e.data);
           setReady(false);
           break;
         case "ready":
@@ -61,6 +63,9 @@ export default function Home() {
           break;
         case "error":
           setError(e.data.error);
+          break;
+        case "progress":
+          setProgress(e.data.progress);
           break;
       }
     };
@@ -84,13 +89,11 @@ export default function Home() {
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
-    if (!video) return;
+    if (!videoRef.current) return;
+    const video = videoRef.current;
 
     function loopCapture() {
       if (!video) return;
-      // Wait for the video to be loaded fully
-      video.width = video.videoWidth;
-      video.height = video.videoHeight;
 
       // Draw the video frame to canvas
       let canvas = document.createElement("canvas");
@@ -108,7 +111,6 @@ export default function Home() {
           if (blob) {
             let src = URL.createObjectURL(blob);
             classify(src);
-            setPreviewSrc(src);
           }
         });
       }, 1000);
@@ -117,15 +119,12 @@ export default function Home() {
     video.addEventListener("loadedmetadata", loopCapture);
 
     return () => {
-      video.pause();
-      video.srcObject = null;
-      stream?.getTracks().forEach((track) => track.stop());
       video.removeEventListener("loadedmetadata", loopCapture);
       if (intervalId) {
         clearInterval(intervalId);
       }
     };
-  }, [video, stream, classify]);
+  }, [videoRef, stream, classify]);
 
   const handleFileDrop = (file?: File) => {
     if (file && file.type.startsWith("image")) {
@@ -140,10 +139,12 @@ export default function Home() {
     setPreviewSrc(undefined);
     setResult(null);
     setError(undefined);
-    video?.pause();
     stream?.getTracks().forEach((track) => track.stop());
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.srcObject = null;
+    }
     setStream(null);
-    setVideo(null);
   };
 
   const handleUseCamera = () => {
@@ -155,21 +156,25 @@ export default function Home() {
     navigator.mediaDevices
       .getUserMedia({ video: true })
       .then((stream) => {
-        let video = document.createElement("video");
-        video.srcObject = stream;
-        video.play();
-        setVideo(video);
-        setStream(stream);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play();
+          setStream(stream);
+        }
       })
       .catch((error) => {
         console.log("Error accessing camera: ", error);
       });
   };
 
+  const showMenu =
+    previewSrc === undefined &&
+    (videoRef.current === null || videoRef.current.srcObject === null);
+
   return (
     <main className="flex min-h-svh flex-col items-center justify-center">
       <h1 className="text-5xl font-bold mb-2 text-center">Birdie 🦆</h1>
-      {!previewSrc && (
+      {showMenu && (
         <div className="flex flex-col items-center gap-4 w-full max-w-sm">
           <form
             className="flex gap-2 w-full"
@@ -250,10 +255,21 @@ export default function Home() {
         />
       )}
 
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        className={cn("rounded-md w-full max-w-sm mb-3", {
+          hidden: !stream,
+        })}
+      />
+
       {ready === false && (
-        <p className="bg-yellow-100 p-2 rounded w-full max-w-sm font-mono mb-3">
-          Loading model...
-        </p>
+        <div className="flex flex-col gap-1 bg-yellow-100 p-2 rounded w-full max-w-sm font-mono mb-3 w-full">
+          <p className=" text-black">Loading model...</p>
+          <Progress value={progress} />
+        </div>
       )}
 
       {ready !== null && !error && result !== null && (

@@ -10,9 +10,10 @@ import {
 env.allowLocalModels = false;
 
 export interface WorkerMessage {
-  status: "complete" | "error" | "initiate" | "ready";
+  status: "complete" | "error" | "initiate" | "ready" | "progress";
   output: { label: string; score: number }[];
   error?: string;
+  progress?: number;
 }
 
 // Use the Singleton pattern to enable lazy construction of the pipeline.
