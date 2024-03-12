@@ -153,7 +153,12 @@ export default function Home() {
     }
 
     navigator.mediaDevices
-      .getUserMedia({ video: true })
+      .getUserMedia({
+        video: {
+          facingMode: "environment",
+        },
+        audio: false,
+      })
       .then((stream) => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
