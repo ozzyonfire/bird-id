@@ -270,8 +270,8 @@ export default function Home() {
       />
 
       {ready === false && (
-        <div className="flex flex-col gap-1 bg-yellow-100 p-2 rounded max-w-sm font-mono mb-3 w-full">
-          <p className=" text-black">Loading model...</p>
+        <div className="flex flex-col gap-1 bg-yellow-100 dark:bg-yellow-700 p-2 rounded max-w-sm font-mono mb-3 w-full">
+          <p className="">Loading model...</p>
           <Progress value={progress} />
         </div>
       )}
