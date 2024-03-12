@@ -13,6 +13,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Camera } from "lucide-react";
 
 export default function Home() {
   // Keep track of the classification result and the model loading status.
@@ -23,8 +24,8 @@ export default function Home() {
   const [isDragging, setIsDragging] = useState(false);
   const [previewSrc, setPreviewSrc] = useState<string>();
   const [error, setError] = useState<string>();
-
-  console.log(result);
+  const [video, setVideo] = useState<HTMLVideoElement | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
 
   // Create a reference to the worker object.
   const worker = useRef<Worker | null>(null);
@@ -81,6 +82,51 @@ export default function Home() {
     [worker]
   );
 
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+    if (!video) return;
+
+    function loopCapture() {
+      if (!video) return;
+      // Wait for the video to be loaded fully
+      video.width = video.videoWidth;
+      video.height = video.videoHeight;
+
+      // Draw the video frame to canvas
+      let canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      let ctx = canvas.getContext("2d");
+
+      // Set up an interval to capture a frame every second
+      intervalId = setInterval(() => {
+        ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+        console.log("Captured frame");
+
+        // Convert the canvas image to Blob
+        canvas.toBlob((blob) => {
+          if (blob) {
+            let src = URL.createObjectURL(blob);
+            classify(src);
+            setPreviewSrc(src);
+          }
+        });
+      }, 1000);
+    }
+
+    video.addEventListener("loadedmetadata", loopCapture);
+
+    return () => {
+      video.pause();
+      video.srcObject = null;
+      stream?.getTracks().forEach((track) => track.stop());
+      video.removeEventListener("loadedmetadata", loopCapture);
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [video, stream, classify]);
+
   const handleFileDrop = (file?: File) => {
     if (file && file.type.startsWith("image")) {
       // convert file to filepath
@@ -94,13 +140,37 @@ export default function Home() {
     setPreviewSrc(undefined);
     setResult(null);
     setError(undefined);
+    video?.pause();
+    stream?.getTracks().forEach((track) => track.stop());
+    setStream(null);
+    setVideo(null);
+  };
+
+  const handleUseCamera = () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      console.log("Camera API not available");
+      return;
+    }
+
+    navigator.mediaDevices
+      .getUserMedia({ video: true })
+      .then((stream) => {
+        let video = document.createElement("video");
+        video.srcObject = stream;
+        video.play();
+        setVideo(video);
+        setStream(stream);
+      })
+      .catch((error) => {
+        console.log("Error accessing camera: ", error);
+      });
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center">
-      <h1 className="text-5xl font-bold mb-2 text-center">Bird ID</h1>
+    <main className="flex min-h-svh flex-col items-center justify-center">
+      <h1 className="text-5xl font-bold mb-2 text-center">Birdie 🦆</h1>
       {!previewSrc && (
-        <div className="flex flex-col items-center gap-2 w-full max-w-sm">
+        <div className="flex flex-col items-center gap-4 w-full max-w-sm">
           <form
             className="flex gap-2 w-full"
             action={(form: FormData) => {
@@ -110,18 +180,26 @@ export default function Home() {
             }}
           >
             <Input
-              className="w-full p-2 border border-gray-400 rounded"
+              className="w-full p-2 rounded min-h-12 text-lg font-medium"
               type="text"
               name="image"
-              placeholder="Image URL"
+              placeholder="Enter image URL"
             />
-            <Button type="submit" className="">
+            <Button type="submit" className="min-h-12">
               Go
             </Button>
           </form>
-          <div
+          <Button
+            variant="outline"
+            className="w-full min-h-12 text-lg font-medium flex items-center justify-center gap-2"
+            onClick={handleUseCamera}
+          >
+            Use Camera
+            <Camera className="w-6 h-6" />
+          </Button>
+          <Label
             className={cn(
-              "flex flex-col border-2 border-dashed p-4 rounded-md border-gray-400 w-full",
+              "flex flex-col border-2 border-dashed p-2 min-h-12 rounded-md w-full hover:bg-secondary cursor-pointer transition-colors duration-200 ease-in-out",
               {
                 "border-blue-500": isDragging,
               }
@@ -142,23 +220,19 @@ export default function Home() {
             }}
           >
             <div className="flex flex-col items-center gap-2">
-              <p className="text-xl font-medium">Drop an image</p>
-              <p className="font-medium">or</p>
-              <Label className="p-2 border border-gray-400 rounded relative">
-                Choose a file
-                <Input
-                  multiple
-                  className="sr-only"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    handleFileDrop(file);
-                  }}
-                />
-              </Label>
+              <p className="text-lg font-medium">Drop or choose an image</p>
+              <Input
+                multiple
+                className="sr-only"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  handleFileDrop(file);
+                }}
+              />
             </div>
-          </div>
+          </Label>
         </div>
       )}
 
