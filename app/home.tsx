@@ -172,7 +172,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-svh flex-col items-center justify-center">
-      <h1 className="text-5xl font-bold mb-2 text-center">Birdie 🦆</h1>
+      <h1 className="text-5xl font-bold mb-2 text-center">BirdBot 🦆</h1>
       {showMenu && (
         <div className="flex flex-col items-center gap-4 w-full max-w-sm">
           <form

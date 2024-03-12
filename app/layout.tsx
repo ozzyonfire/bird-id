@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -8,10 +8,34 @@ import { ThemeProvider } from "@/components/theme-provider";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Easy Bird ID",
+  title: "Bird Bot",
   description:
     "Machine learning powered bird identification - directly in your browser.",
+  appleWebApp: {
+    title: "BirdBot",
+    capable: true,
+    startupImage: "/favicon/icon-512x512.png",
+  },
+  manifest: "/manifest.json",
 };
+
+export function generateViewport(): Viewport {
+  return {
+    width: "device-width",
+    initialScale: 1,
+    viewportFit: "cover",
+    themeColor: [
+      {
+        media: "(prefers-color-scheme: dark)",
+        color: "hsl(222.2, 84%, 4.9%)",
+      },
+      {
+        media: "(prefers-color-scheme: light)",
+        color: "hsl(0, 0%, 100%)",
+      },
+    ],
+  };
+}
 
 export default function RootLayout({
   children,
