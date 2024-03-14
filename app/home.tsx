@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { WorkerMessage } from "./matt-worker";
+import { WorkerMessage } from "./worker";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -37,7 +37,7 @@ export default function Home() {
       // Create the worker if it does not yet exist.
       worker.current = new Worker(
         /* webpackChunkName: "pipeline-worker" */ new URL(
-          "./matt-worker.ts",
+          "./worker.ts",
           import.meta.url
         ),
         {
